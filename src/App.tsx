@@ -1,25 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import axios from "axios";
 
-function App() {
+interface IRepo {
+    id: number;
+    html_url: string;
+    stargazers_count: number;
+    forks: number;
+    name: string;
+}
+
+const App = () => {
+  const [repositories, setRepositories] = useState<IRepo[]>([]);
+
+  useEffect(() => {
+      const getRepositories = async () => {
+      try {
+        const response = await axios.get(process.env.REACT_APP_API_URL as string);
+        setRepositories(response.data);
+      } catch (error) {
+        console.error('Ошибка при запросе данных с GitHub API', error);
+      }
+    };
+
+    getRepositories();
+  }, [])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div>
+        <h1>Список репозиториев Facebook</h1>
+        <ul>
+          {repositories.map((repo, index) => (
+              <li key={repo.id}>
+                {++index} - <a href={repo.html_url} target="_blank" rel="noopener noreferrer">{repo.name}</a> -
+                Звезд: {repo.stargazers_count} - Форков: {repo.forks}
+              </li>
+          ))}
+        </ul>
+      </div>
   );
 }
 
